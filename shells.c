@@ -115,16 +115,20 @@ int main(int argc, char** argv)
     Point* firstShellCenter = newPoint(243.25, 175, -100);
     Point* secondShellCenter = newPoint(156.75, 175, -100);
     Point* thirdShellCenter = newPoint(200, 250, -100);
+    Point* peaCenter = newPoint(0, 0, 0);
     
+    Color* bgGray = newColor(35, 35, 25);
+    Color* white = newColor(255, 255, 255);
     Color* pastelMagenta = newColor(238, 153, 187);
     Color* limeGreen = newColor(153, 238, 187);
     Color* skyBlue = newColor(153, 187, 238);
 
-    Color*  = newColor(255, 255, 255);
-    Shell shellList[]
     Cube* firstShell = newCube(firstShellCenter, 75.0, skyBlue);
     Cube* secondShell = newCube(secondShellCenter, 75.0, skyBlue);
     Cube* thirdShell = newCube(thirdShellCenter, 75.0, skyBlue);
+    Cube* pea = newCube(peaCenter, 25.0, limeGreen);
+
+
     // init();
     // glutInit(&argc, argv);
     // my_setup(canvas_Width, canvas_Height, canvas_Name);
