@@ -123,9 +123,11 @@ int main(int argc, char** argv)
     Color* limeGreen = newColor(153, 238, 187);
     Color* skyBlue = newColor(153, 187, 238);
 
-    Cube* firstShell = newCube(firstShellCenter, 75.0, skyBlue);
-    Cube* secondShell = newCube(secondShellCenter, 75.0, skyBlue);
-    Cube* thirdShell = newCube(thirdShellCenter, 75.0, skyBlue);
+    Cube* shells[3] = (Cube*)malloc(sizeof(Cube));
+
+    shells[0] = newCube(firstShellCenter, 75.0, skyBlue);
+    shells[1] = newCube(secondShellCenter, 75.0, skyBlue);
+    shells[2] = newCube(thirdShellCenter, 75.0, skyBlue);
     Cube* pea = newCube(peaCenter, 25.0, limeGreen);
 
 
