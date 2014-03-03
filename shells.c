@@ -137,9 +137,10 @@ Cube* pea;
 
 int rotationSteps = 0;
 int peaShell;
-int showPea = 1;
+int isPeaShowing = 1;
 int isPerspectiveView = 0;
 
+int scored = 0;
 int guessesLeft = 0;
 int playerScore;
 
@@ -400,7 +401,7 @@ void drawObjects() {
     for(i = 0; i < 3; i++) {
         drawShell(i);
     }
-    if(showPea) drawPea();
+    if(isPeaShowing) drawPea();
 }
 
 void drawButton(char *string) {
@@ -419,7 +420,7 @@ void drawButton(char *string) {
     glEnd();
 }
 
-void drawScore() {
+void drawScoreboard() {
     glColor3f(1.0, 1.0, 1.0);
     glRasterPos3f(10.0, 380.0, -100.0);
     char *string = "Score: ";
@@ -428,18 +429,41 @@ void drawScore() {
     {
         glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *c);
     }
+
     char* score[20];
     sprintf(score, "%d", playerScore);
     for (c = score; *c != '\0'; c++)
     {
         glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *c);
     }
+
+    glRasterPos3f(10.0, 365.0, -100.0);
+    string = "Guesses Left: ";
+    for (c = string; *c != '\0'; c++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *c);
+    }
+
+    char* guesses[2];
+    sprintf(guesses, "%d", guessesLeft);
+    for (c = guesses; *c != '\0'; c++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *c);
+    }
 }
 
-void drawPeaCheatText(char *string) {
+void drawInstructions() {
     glColor3f(1.0, 1.0, 1.0);
     glRasterPos3f(10.0, 10.0, -100.0);
+    char* string = "Press S to toggle always visible Pea";
     char *c;
+    for (c = string; *c != '\0'; c++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *c);
+    }
+
+    glRasterPos3f(10.0, 25.0, -100.0);
+    string = "Press P to toggle Perspective/Orthographic View";
     for (c = string; *c != '\0'; c++)
     {
         glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *c);
@@ -465,48 +489,22 @@ void orthographicMode() {
     CITATION: The use of the glPolygonMode call comes from the 
               TextBook on page 41.
 */
-void initialDraw() {
-    glClearColor(bgGray->red, bgGray->green, bgGray->blue, 0.0);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    perspectiveMode();
-
-    drawObjects();
-
-    orthographicMode();
-        
-    drawButton("Start");
-    drawScore();
-    drawPeaCheatText("Press S to toggle Pea in animation.");
-
-    glFlush();    
-}
-
 void draw() {
     glClearColor(bgGray->red, bgGray->green, bgGray->blue, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    drawButton("Start");
-    drawScore();
-    drawPeaCheatText("Press S to toggle Pea in animation.");
     if(isPerspectiveView) {
+        perspectiveMode();
+    }
+    else {
+        orthographicMode();
     }
     drawObjects();
-    glFlush();  
-}
-
-void drawAfterGuess() {
-    glClearColor(bgGray->red, bgGray->green, bgGray->blue, 0.0);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    orthographicMode();
     drawButton("Start");
-    drawScore();
-    drawPeaCheatText("Press S to toggle Pea in animation.");
-    if(isPerspectiveView) {
-    }
-    drawObjects();
-    glFlush();
+    drawScoreboard();
+    drawInstructions();
+    glFlush();    
 }
 
 void animate() {
@@ -526,12 +524,12 @@ void handleKeys(unsigned char c, GLint x, GLint y) {
     }
 
     if ((c == 's') || (c == 'S')) {
-        if(!showPea) {
-            showPea = 1;
+        if(!isPeaShowing) {
+            isPeaShowing = 1;
             glutPostRedisplay();
         }
         else {
-            showPea = 0;
+            isPeaShowing = 0;
             glutPostRedisplay();
         }
     }
@@ -567,14 +565,16 @@ void handleMouse(int button, int state, int x, int y) {
             y < (400 - shells[0]->vertices[1].y)) {
             if(shells[peaShell]->position == 0) {
                 if(guessesLeft == 2) {
+                    scored = 1;
                     playerScore += 10;
                     guessesLeft = 0;
-                    glutTimerFunc(1000 / 9, drawAfterGuess, 1);
+                    glutTimerFunc(1000 / 9, draw, 1);
                 }
                 else if(guessesLeft == 1) {
+                    scored = 1;
                     playerScore += 5;
                     guessesLeft = 0;
-                    glutTimerFunc(1000 / 9, drawAfterGuess, 1);
+                    glutTimerFunc(1000 / 9, draw, 1);
                 }
             }
             else {
@@ -589,14 +589,16 @@ void handleMouse(int button, int state, int x, int y) {
             y < (400 - shells[1]->vertices[1].y)) {
             if(shells[peaShell]->position == 3) {
                 if(guessesLeft == 2) {
+                    scored = 1;
                     playerScore += 10;
                     guessesLeft = 0;
-                    glutTimerFunc(1000 / 9, drawAfterGuess, 1);
+                    glutTimerFunc(1000 / 9, draw, 1);
                 }
                 else if(guessesLeft == 1) {
+                    scored = 1;
                     playerScore += 5;
                     guessesLeft = 0;
-                    glutTimerFunc(1000 / 9, drawAfterGuess, 1);
+                    glutTimerFunc(1000 / 9, draw, 1);
                 }
             }
             else {
@@ -613,20 +615,22 @@ void handleMouse(int button, int state, int x, int y) {
             y < (400 - shells[2]->vertices[1].y)) {
             if(shells[peaShell]->position == 6) {
                 if(guessesLeft == 2) {
+                    scored = 1;
                     playerScore += 10;
                     guessesLeft = 0;
-                    glutTimerFunc(1000 / 9, drawAfterGuess, 1);
+                    glutTimerFunc(1000 / 9, draw, 1);
                 }
                 else if(guessesLeft == 1) {
+                    scored = 1;
                     playerScore += 5;
                     guessesLeft = 0;
-                    glutTimerFunc(1000 / 9, drawAfterGuess, 1);
+                    glutTimerFunc(1000 / 9, draw, 1);
                 }
             }
             else {
                 guessesLeft--;
             }
-            glutTimerFunc(1000 / 9, drawAfterGuess, 1);
+            glutTimerFunc(1000 / 9, draw, 1);
         }
     }
 }
@@ -642,8 +646,8 @@ void init() {
     limeGreen = newColor(0.5, 0.9, 0.6);
     skyBlue = newColor(0.5, 0.6, 0.9);
 
-    shells[0] = newCube(firstShellCenter, 75.0, white, 0);
-    shells[1] = newCube(secondShellCenter, 75.0, pastelMagenta, 3);
+    shells[0] = newCube(firstShellCenter, 75.0, skyBlue, 0);
+    shells[1] = newCube(secondShellCenter, 75.0, skyBlue, 3);
     shells[2] = newCube(thirdShellCenter, 75.0, skyBlue, 6);
     
     srand(time(NULL));
@@ -658,7 +662,7 @@ int main(int argc, char** argv)
     init();
     glutInit(&argc, argv);
     my_setup(canvas_Width, canvas_Height, canvas_Name);
-    glutDisplayFunc(initialDraw);
+    glutDisplayFunc(draw);
     glutKeyboardFunc(handleKeys);
     glutMouseFunc(handleMouse);
     glutMainLoop();
