@@ -19,7 +19,7 @@ that sets viewing parameters for orthographic 3D display.
 /* reshape callback handler - defines viewing parameters */
 
 void my_3d_projection(int width, int height)
-    {
+{
     GLfloat width_bound, height_bound;
     width_bound = width; height_bound = height;
     glViewport(0, 0, width, height);
@@ -27,14 +27,15 @@ void my_3d_projection(int width, int height)
     glLoadIdentity();
     glOrtho(0.0, width_bound, 0.0, height_bound, 100.0, -300.0);
     // gluPerspective(58.0, width_bound/height_bound, 100.0, 300.0); 
+    glTranslatef(-200.0, -200.0, -200.0);
     glMatrixMode(GL_MODELVIEW);
-    }
+}
 
 #define STRT_X_POS 25
 #define STRT_Y_POS 25
 
 void my_setup(int width, int height, char *window_name_str)
-    {
+{
     // To get double buffering, uncomment the following line
     // glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB); 
     // below code line does single buffering - if above line is uncommented,
@@ -46,5 +47,5 @@ void my_setup(int width, int height, char *window_name_str)
     glutCreateWindow(window_name_str);
 
     glutReshapeFunc(my_3d_projection);
-    }
+}
 
