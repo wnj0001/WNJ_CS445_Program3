@@ -11,7 +11,11 @@ that sets viewing parameters for orthographic 3D display.
 
  ************************************************************/
 
-#include <GL/glut.h>
+#ifdef __APPLE__
+#  include <GLUT/glut.h>
+#else
+#  include <GL/glut.h>
+#endif
 /* reshape callback handler - defines viewing parameters */
 
 void my_3d_projection(int width, int height)
@@ -21,7 +25,8 @@ void my_3d_projection(int width, int height)
     glViewport(0, 0, width, height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0.0, width_bound, 0.0, height_bound, 100.0, -300.0); 
+    glOrtho(0.0, width_bound, 0.0, height_bound, 100.0, -300.0);
+    // gluPerspective(58.0, width_bound/height_bound, 100.0, 300.0); 
     glMatrixMode(GL_MODELVIEW);
     }
 
