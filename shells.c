@@ -137,10 +137,12 @@ Cube* pea;
 
 int rotationSteps = 0;
 int peaShell;
+int isPeaAlwaysVisible = 0;
 int isPeaShowing = 1;
 int isPerspectiveView = 0;
 
 int scored = 0;
+int failed = 0;
 int guessesLeft = 0;
 int playerScore;
 
@@ -401,7 +403,17 @@ void drawObjects() {
     for(i = 0; i < 3; i++) {
         drawShell(i);
     }
-    if(isPeaShowing) drawPea();
+    if(isPeaShowing) {
+        drawPea();
+    }
+    
+    if(scored) {
+        drawPea();
+    }
+    
+    if(failed) {
+        drawPea();
+    }
 }
 
 void drawButton(char *string) {
@@ -450,10 +462,36 @@ void drawScoreboard() {
     {
         glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *c);
     }
+
+    if(scored) {
+        glRasterPos3f(10.0, 350.0, -100.0);
+        string = "You Got It! Press Start to Play Again.";
+        for (c = string; *c != '\0'; c++)
+        {
+            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *c);
+        }
+        scored = 0;
+        failed = 0;
+    }
+    else if(failed) {
+        glRasterPos3f(10.0, 350.0, -100.0);
+        string = "Too Bad... Press Start to Play Again.";
+        for (c = string; *c != '\0'; c++)
+        {
+            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *c);
+        }
+        failed = 0;
+        scored = 0;
+    }
 }
 
 void drawInstructions() {
-    glColor3f(1.0, 1.0, 1.0);
+    if(isPeaAlwaysVisible) {
+        glColor3f(0.2, 1.0, 0.2);
+    }
+    else {
+        glColor3f(1.0, 1.0, 1.0);
+    }
     glRasterPos3f(10.0, 10.0, -100.0);
     char* string = "Press S to toggle always visible Pea";
     char *c;
@@ -462,6 +500,12 @@ void drawInstructions() {
         glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *c);
     }
 
+    if(isPerspectiveView) {
+        glColor3f(0.2, 1.0, 0.2);
+    }
+    else {
+        glColor3f(1.0, 1.0, 1.0);
+    }
     glRasterPos3f(10.0, 25.0, -100.0);
     string = "Press P to toggle Perspective/Orthographic View";
     for (c = string; *c != '\0'; c++)
@@ -524,12 +568,12 @@ void handleKeys(unsigned char c, GLint x, GLint y) {
     }
 
     if ((c == 's') || (c == 'S')) {
-        if(!isPeaShowing) {
-            isPeaShowing = 1;
+        if(!isPeaAlwaysVisible) {
+            isPeaAlwaysVisible = 1;
             glutPostRedisplay();
         }
         else {
-            isPeaShowing = 0;
+            isPeaAlwaysVisible = 0;
             glutPostRedisplay();
         }
     }
@@ -550,6 +594,12 @@ void handleMouse(int button, int state, int x, int y) {
         if((x > 330.0 && x < 390.0) && (y > (400 - 395.0) && y < (400 - 375.0))) {
             srand(time(NULL));
             peaShell = 0;
+            if(!isPeaAlwaysVisible) {
+                isPeaShowing = 0;
+            }
+            else {
+                isPeaShowing = 1;
+            }
             Point* peaCenter = &shells[peaShell]->centerOfBase;
             float peaPosition = shells[peaShell]->position;
             pea = newCube(peaCenter, 25.0, limeGreen, peaPosition);
@@ -568,18 +618,22 @@ void handleMouse(int button, int state, int x, int y) {
                     scored = 1;
                     playerScore += 10;
                     guessesLeft = 0;
-                    glutTimerFunc(1000 / 9, draw, 1);
                 }
                 else if(guessesLeft == 1) {
                     scored = 1;
                     playerScore += 5;
                     guessesLeft = 0;
-                    glutTimerFunc(1000 / 9, draw, 1);
                 }
             }
             else {
-                guessesLeft--;
+                if(guessesLeft > 0) {
+                    guessesLeft--;
+                }
             }
+            if(guessesLeft == 0) {
+                failed = 1;
+            }
+            glutTimerFunc(1000 / 9, draw, 1);
         }
 
         // Mouse released at bottom left position
@@ -592,20 +646,22 @@ void handleMouse(int button, int state, int x, int y) {
                     scored = 1;
                     playerScore += 10;
                     guessesLeft = 0;
-                    glutTimerFunc(1000 / 9, draw, 1);
                 }
                 else if(guessesLeft == 1) {
                     scored = 1;
                     playerScore += 5;
                     guessesLeft = 0;
-                    glutTimerFunc(1000 / 9, draw, 1);
                 }
             }
             else {
-                guessesLeft--;
-
+                if(guessesLeft > 0) {
+                    guessesLeft--;
+                }
             }
-            
+            if (guessesLeft == 0) {
+                failed = 1;
+            }
+            glutTimerFunc(1000 / 9, draw, 1);
         }
 
         // Mouse released at top center position
@@ -618,17 +674,20 @@ void handleMouse(int button, int state, int x, int y) {
                     scored = 1;
                     playerScore += 10;
                     guessesLeft = 0;
-                    glutTimerFunc(1000 / 9, draw, 1);
                 }
                 else if(guessesLeft == 1) {
                     scored = 1;
                     playerScore += 5;
                     guessesLeft = 0;
-                    glutTimerFunc(1000 / 9, draw, 1);
                 }
             }
             else {
-                guessesLeft--;
+                if(guessesLeft > 0) {
+                    guessesLeft--;
+                }
+            }
+            if (guessesLeft == 0) {
+                failed = 1;
             }
             glutTimerFunc(1000 / 9, draw, 1);
         }
